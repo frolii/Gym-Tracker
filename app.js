@@ -1537,20 +1537,38 @@ async function registerServiceWorker() {
 }
 
 async function initApp() {
-  unlockAudioContextOnce();
-  bindEvents();
+  try {
+    unlockAudioContextOnce();
+    bindEvents();
 
-  await ensureSeedData();
+    await ensureSeedData();
 
-  // Falls noch ein Timer im localStorage läuft, sofort wieder aufnehmen
-  if (getStoredTimer()) {
-    syncRestTimerUI();
-    ensureTimerLoop();
+    // Falls noch ein Timer im localStorage läuft, sofort wieder aufnehmen
+    if (getStoredTimer()) {
+      syncRestTimerUI();
+      ensureTimerLoop();
+    }
+
+    updateNavHighlight();
+    await renderCurrentView();
+    await registerServiceWorker();
+  } catch (err) {
+    console.error('Initialisierungsfehler:', err);
+    const main = document.getElementById('app-main');
+    if (main) {
+      main.innerHTML = `
+        <div class="rounded-2xl bg-rose-950/60 border border-rose-500 p-4 text-rose-200 text-xs space-y-2">
+          <div class="font-black text-sm">Fehler beim Starten der App:</div>
+          <div class="font-mono break-all">${escapeHtml(err?.message || String(err))}</div>
+          <p class="text-zinc-300">Bitte stelle sicher, dass alle Dateien (<code>index.html</code>, <code>app.js</code>, <code>db.js</code>, <code>dexie.min.js</code>) im selben GitHub-Ordner liegen.</p>
+        </div>
+      `;
+    }
   }
-
-  updateNavHighlight();
-  await renderCurrentView();
-  await registerServiceWorker();
 }
 
-document.addEventListener('DOMContentLoaded', initApp);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}

@@ -9,29 +9,12 @@
   <title>IRON — Minimal Gym Tracker</title>
 
   <link rel="manifest" href="./manifest.json" />
-  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
-  <link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png" />
 
-  <!-- Lokales Tailwind CSS Bundle (100% Offline-fähig) -->
-  <script src="./vendor/tailwindcss.js"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            gym: {
-              bg: '#09090b',
-              card: '#121216',
-              border: '#27272a',
-              accent: '#10b981'
-            }
-          }
-        }
-      }
-    };
-  </script>
+  <!-- Tailwind CSS (Lokal + automatischer CDN-Fallback falls Datei beim Upload vergessen wurde) -->
+  <script src="./tailwindcss.js" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.17';document.head.appendChild(s);"></script>
 
   <style>
     * {
@@ -91,7 +74,10 @@
 
   <!-- HAUPTBEREICH -->
   <main id="app-main" class="flex-1 max-w-lg w-full mx-auto px-3.5 pt-4 pb-44">
-    <!-- Dynamisch gerendert durch app.js -->
+    <!-- Sichtbarer Ladezustand / Fallback -->
+    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 text-center text-zinc-400 text-sm">
+      Lade Trainingsdatenbank...
+    </div>
   </main>
 
   <!-- HINTERGRUNDSICHERER PAUSEN-TIMER (STICKY OVERLAY ÜBER BOTTOM-NAV) -->
@@ -114,15 +100,15 @@
 
         <div class="flex items-center gap-1.5">
           <button type="button" id="btn-timer-minus"
-            class="h-12 px-3.5 rounded-xl bg-zinc-800 active:bg-zinc-700 border border-zinc-700 text-zinc-200 font-bold text-sm">
+            class="h-12 px-3.5 rounded-xl bg-zinc-800 active:bg-zinc-700 border border-zinc-700 text-zinc-200 font-bold text-sm cursor-pointer">
             -15s
           </button>
           <button type="button" id="btn-timer-plus"
-            class="h-12 px-3.5 rounded-xl bg-zinc-800 active:bg-zinc-700 border border-zinc-700 text-zinc-200 font-bold text-sm">
+            class="h-12 px-3.5 rounded-xl bg-zinc-800 active:bg-zinc-700 border border-zinc-700 text-zinc-200 font-bold text-sm cursor-pointer">
             +30s
           </button>
           <button type="button" id="btn-timer-skip"
-            class="h-12 px-4 rounded-xl bg-rose-500/20 active:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-extrabold text-sm">
+            class="h-12 px-4 rounded-xl bg-rose-500/20 active:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-extrabold text-sm cursor-pointer">
             Skip
           </button>
         </div>
@@ -141,21 +127,21 @@
   <!-- STICKY BOTTOM NAVIGATION (EIN-DAUMEN-BEDIENUNG) -->
   <nav class="fixed bottom-0 inset-x-0 z-30 bg-zinc-950/95 backdrop-blur border-t border-zinc-800">
     <div class="max-w-lg mx-auto grid grid-cols-3 h-[68px]">
-      <button type="button" data-nav="home" class="nav-tab flex flex-col items-center justify-center gap-1 text-xs font-bold transition-colors">
+      <button type="button" data-nav="home" class="nav-tab flex flex-col items-center justify-center gap-1 text-xs font-bold text-emerald-400 transition-colors cursor-pointer">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5.5v-6h-5v6H4a1 1 0 01-1-1v-9.5z" />
         </svg>
         <span>Training</span>
       </button>
 
-      <button type="button" data-nav="manage" class="nav-tab flex flex-col items-center justify-center gap-1 text-xs font-bold transition-colors">
+      <button type="button" data-nav="manage" class="nav-tab flex flex-col items-center justify-center gap-1 text-xs font-bold text-zinc-500 transition-colors cursor-pointer">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10" />
         </svg>
         <span>Übungen &amp; Pläne</span>
       </button>
 
-      <button type="button" data-nav="settings" class="nav-tab flex flex-col items-center justify-center gap-1 text-xs font-bold transition-colors">
+      <button type="button" data-nav="settings" class="nav-tab flex flex-col items-center justify-center gap-1 text-xs font-bold text-zinc-500 transition-colors cursor-pointer">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.5A3.5 3.5 0 1012 8.5a3.5 3.5 0 000 7zm7.4-2.5a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.08a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51h.08a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.08a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
         </svg>
@@ -164,9 +150,31 @@
     </div>
   </nav>
 
-  <!-- Lokale Scripts (relativ eingebunden für GitHub Pages Subfolder) -->
-  <script src="./vendor/dexie.min.js"></script>
-  <script src="./db.js"></script>
-  <script src="./app.js"></script>
+  <!-- Lokale Scripts im Hauptordner (mit automatischem CDN-Fallback für Dexie, falls dexie.min.js beim Upload vergessen wurde) -->
+  <script src="./dexie.min.js"></script>
+  <script>
+    (function loadAppScripts() {
+      function boot() {
+        var s1 = document.createElement('script');
+        s1.src = './db.js';
+        s1.onload = function () {
+          var s2 = document.createElement('script');
+          s2.src = './app.js';
+          document.body.appendChild(s2);
+        };
+        document.body.appendChild(s1);
+      }
+
+      if (typeof window.Dexie === 'undefined') {
+        var fallbackDexie = document.createElement('script');
+        fallbackDexie.src = 'https://unpkg.com/dexie@4.0.10/dist/dexie.min.js';
+        fallbackDexie.onload = boot;
+        fallbackDexie.onerror = boot;
+        document.head.appendChild(fallbackDexie);
+      } else {
+        boot();
+      }
+    })();
+  </script>
 </body>
 </html>

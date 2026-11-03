@@ -1,24 +1,30 @@
-const CACHE_NAME = 'iron-gym-tracker-v2';
+const CACHE_NAME = 'iron-gym-tracker-v3';
 
-// WICHTIG: Nur relative Pfade (./), damit die App in jedem GitHub-Pages-Unterordner
-// (https://<username>.github.io/<repo-name>/) zu 100% offline funktioniert!
+// Alle Dateien liegen flach im selben Ordner (kein Unterordner-Upload-Problem auf GitHub!)
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
   './db.js',
   './app.js',
-  './vendor/dexie.min.js',
-  './vendor/tailwindcss.js',
-  './icons/icon.svg',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  './dexie.min.js',
+  './tailwindcss.js',
+  './icon.svg',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // Einzelnes Cachen verhindert, dass ein einziges fehlendes Icon den gesamten Service Worker abbricht
+      for (const asset of ASSETS_TO_CACHE) {
+        try {
+          await cache.add(asset);
+        } catch (err) {
+          console.warn('Cache-Skip für Asset:', asset, err);
+        }
+      }
     })
   );
   self.skipWaiting();
@@ -50,7 +56,7 @@ self.addEventListener('fetch', (event) => {
           if (
             networkResponse &&
             networkResponse.status === 200 &&
-            networkResponse.type === 'basic'
+            (networkResponse.type === 'basic' || networkResponse.type === 'cors')
           ) {
             const responseClone = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
