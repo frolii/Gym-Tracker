@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#09090b"/>
+  <rect x="24" y="24" width="464" height="464" rx="92" fill="none" stroke="#10b981" stroke-width="12" stroke-opacity="0.35"/>
+  <!-- Dumbbell Plates Left -->
+  <rect x="68" y="166" width="38" height="180" rx="14" fill="#10b981"/>
+  <rect x="116" y="136" width="46" height="240" rx="16" fill="#34d399"/>
+  <!-- Dumbbell Bar -->
+  <rect x="162" y="238" width="188" height="36" rx="8" fill="#e4e4e7"/>
+  <!-- Dumbbell Plates Right -->
+  <rect x="350" y="136" width="46" height="240" rx="16" fill="#34d399"/>
+  <rect x="406" y="166" width="38" height="180" rx="14" fill="#10b981"/>
+</svg>

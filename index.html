@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#09090b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>IRON — Minimal Gym Tracker</title>
+
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192.png" />
+
+  <!-- Lokales Tailwind CSS Bundle (100% Offline-fähig) -->
+  <script src="./vendor/tailwindcss.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gym: {
+              bg: '#09090b',
+              card: '#121216',
+              border: '#27272a',
+              accent: '#10b981'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    html, body {
+      background-color: #09090b;
+      color: #f4f4f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overscroll-behavior-y: none;
+      user-select: none;
+    }
+
+    input {
+      user-select: text;
+    }
+
+    /* Entferne Standard-Pfeile in Number-Inputs für sauberen Minimal-Look */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    /* Sanftes Pulsieren für abgelaufenen Timer */
+    @keyframes pulse-emerald {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45); }
+      50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    }
+    .timer-active-glow {
+      animation: pulse-emerald 2s infinite;
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col selection:bg-emerald-500 selection:text-zinc-950">
+
+  <!-- TOP STATUS / HEADER -->
+  <header id="app-header" class="sticky top-0 z-30 bg-zinc-950/95 backdrop-blur border-b border-zinc-800/80 px-4 py-3">
+    <div class="max-w-lg mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-black tracking-tighter text-sm">
+          Fe
+        </div>
+        <div>
+          <h1 class="text-base font-extrabold tracking-tight leading-none text-zinc-100">IRON TRACKER</h1>
+          <p id="header-subtitle" class="text-[11px] text-zinc-400 font-medium mt-0.5">100% Offline • Local IndexedDB</p>
+        </div>
+      </div>
+      <div id="header-actions" class="flex items-center gap-2"></div>
+    </div>
+  </header>
+
+  <!-- HAUPTBEREICH -->
+  <main id="app-main" class="flex-1 max-w-lg w-full mx-auto px-3.5 pt-4 pb-44">
+    <!-- Dynamisch gerendert durch app.js -->
+  </main>
+
+  <!-- HINTERGRUNDSICHERER PAUSEN-TIMER (STICKY OVERLAY ÜBER BOTTOM-NAV) -->
+  <div id="rest-timer-bar" class="hidden fixed bottom-[68px] inset-x-0 z-40 px-3 pb-2 pointer-events-none">
+    <div class="max-w-lg mx-auto bg-zinc-900/95 backdrop-blur-md border-2 border-emerald-500/60 rounded-2xl p-3 shadow-2xl pointer-events-auto timer-active-glow">
+      <!-- Fortschrittsbalken -->
+      <div class="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden mb-2.5">
+        <div id="timer-progress-bar" class="h-full bg-emerald-500 transition-all duration-200" style="width: 100%"></div>
+      </div>
+
+      <div class="flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <div class="text-[11px] uppercase tracking-wider font-bold text-emerald-400 truncate" id="timer-exercise-label">
+            SATZPAUSE
+          </div>
+          <div id="timer-countdown" class="text-3xl font-black font-mono tracking-tight text-white leading-none mt-0.5">
+            02:00
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <button type="button" id="btn-timer-minus"
+            class="h-12 px-3.5 rounded-xl bg-zinc-800 active:bg-zinc-700 border border-zinc-700 text-zinc-200 font-bold text-sm">
+            -15s
+          </button>
+          <button type="button" id="btn-timer-plus"
+            class="h-12 px-3.5 rounded-xl bg-zinc-800 active:bg-zinc-700 border border-zinc-700 text-zinc-200 font-bold text-sm">
+            +30s
+          </button>
+          <button type="button" id="btn-timer-skip"
+            class="h-12 px-4 rounded-xl bg-rose-500/20 active:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-extrabold text-sm">
+            Skip
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FÜR PAUSENZEIT-DIREKTBEARBEITUNG & BESTÄTIGUNGEN -->
+  <div id="modal-backdrop" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-end sm:items-center justify-center p-3">
+    <div id="modal-content" class="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-2xl"></div>
+  </div>
+
+  <!-- TOAST FEEDBACK -->
+  <div id="toast-container" class="fixed top-16 inset-x-0 z-50 flex justify-center px-4 pointer-events-none"></div>
+
+  <!-- STICKY BOTTOM NAVIGATION (EIN-DAUMEN-BEDIENUNG) -->
+  <nav class="fixed bottom-0 inset-x-0 z-30 bg-zinc-950/95 backdrop-blur border-t border-zinc-800">
+    <div class="max-w-lg mx-auto grid grid-cols-3 h-[68px]">
+      <button type="button" data-nav="home" class="nav-tab flex flex-col items-center justify-center gap-1 text-xs font-bold transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5.5v-6h-5v6H4a1 1 0 01-1-1v-9.5z" />
+        </svg>
+        <span>Training</span>
+      </button>
+
+      <button type="button" data-nav="manage" class="nav-tab flex flex-col items-center justify-center gap-1 text-xs font-bold transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10" />
+        </svg>
+        <span>Übungen &amp; Pläne</span>
+      </button>
+
+      <button type="button" data-nav="settings" class="nav-tab flex flex-col items-center justify-center gap-1 text-xs font-bold transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.5A3.5 3.5 0 1012 8.5a3.5 3.5 0 000 7zm7.4-2.5a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.08a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51h.08a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.08a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+        </svg>
+        <span>Backup</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Lokale Scripts (relativ eingebunden für GitHub Pages Subfolder) -->
+  <script src="./vendor/dexie.min.js"></script>
+  <script src="./db.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
